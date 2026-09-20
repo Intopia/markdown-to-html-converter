@@ -158,7 +158,7 @@ button {
 
 #output { min-height: 320px; }
 
-.copy-row { margin-top: 16px; }
+.copy-row { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 12px; }
 
 [hidden] { display: none !important; }
 </style>
@@ -198,6 +198,7 @@ button {
     <textarea id="output" rows="20" readonly spellcheck="false" aria-labelledby="output-heading"></textarea>
     <div class="copy-row">
       <button type="button" class="btn-primary" id="copy">Copy to clipboard</button>
+      <button type="button" class="btn-primary" id="reset">Start again</button>
     </div>
   </div>
 
@@ -237,6 +238,37 @@ button {
     return escapeAmp(text).replace(/"/g, '&quot;').replace(/</g, '&lt;');
   }
 
+  // Link reference definitions, collected before block parsing starts.
+  // Output indentation. Tabs, so the reader can set their own width.
+  var UNIT = '\t';
+
+  function step(pad, levels) {
+    var out = pad;
+    for (var n = 0; n < levels; n++) { out += UNIT; }
+    return out;
+  }
+
+  var refs = {};
+  var RE_DEFINITION = /^ {0,3}\[([^\]]+)\]:\s*(\S+)(?:\s+(?:"([^"]*)"|'([^']*)'|\(([^)]*)\)))?\s*$/;
+
+  function collectDefinitions(lines) {
+    refs = {};
+    for (var i = 0; i < lines.length; i++) {
+      var found = lines[i].match(RE_DEFINITION);
+      if (found) {
+        refs[found[1].toLowerCase().replace(/\s+/g, ' ')] = {
+          href: found[2].replace(/^<|>$/g, ''),
+          title: found[3] || found[4] || found[5] || ''
+        };
+        lines[i] = '';
+      }
+    }
+  }
+
+  function lookup(label) {
+    return refs[label.toLowerCase().replace(/\s+/g, ' ')] || null;
+  }
+
   function inline(text) {
     var codes = [];
 
@@ -273,6 +305,36 @@ button {
     out = out.replace(/\[([^\]]*)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)/g, function (m, label, href, title) {
       return '<a href="' + escapeAttr(href) + '"' +
         (title ? ' title="' + escapeAttr(title) + '"' : '') + '>' + label + '</a>';
+    });
+
+    // Reference style images and links, full and collapsed forms
+    out = out.replace(/!\[([^\]]*)\]\[([^\]]*)\]/g, function (m, alt, label) {
+      var ref = lookup(label || alt);
+      if (!ref) { return m; }
+      return '<img src="' + escapeAttr(ref.href) + '" alt="' + escapeAttr(alt) + '"' +
+        (ref.title ? ' title="' + escapeAttr(ref.title) + '"' : '') + '>';
+    });
+
+    out = out.replace(/\[([^\]]*)\]\[([^\]]*)\]/g, function (m, label, id) {
+      var ref = lookup(id || label);
+      if (!ref) { return m; }
+      return '<a href="' + escapeAttr(ref.href) + '"' +
+        (ref.title ? ' title="' + escapeAttr(ref.title) + '"' : '') + '>' + label + '</a>';
+    });
+
+    // Shortcut form, only when the label matches a definition
+    out = out.replace(/!\[([^\]]+)\]/g, function (m, alt) {
+      var ref = lookup(alt);
+      if (!ref) { return m; }
+      return '<img src="' + escapeAttr(ref.href) + '" alt="' + escapeAttr(alt) + '"' +
+        (ref.title ? ' title="' + escapeAttr(ref.title) + '"' : '') + '>';
+    });
+
+    out = out.replace(/\[([^\]]+)\]/g, function (m, label) {
+      var ref = lookup(label);
+      if (!ref) { return m; }
+      return '<a href="' + escapeAttr(ref.href) + '"' +
+        (ref.title ? ' title="' + escapeAttr(ref.title) + '"' : '') + '>' + label + '</a>';
     });
 
     out = out.replace(/\*\*\*(\S(?:[\s\S]*?\S)?)\*\*\*/g, '<strong><em>$1</em></strong>');
@@ -331,7 +393,7 @@ button {
      prefixed with the supplied indent.
      --------------------------------------------------------------- */
 
-  function blocksToHtml(lines, indent) {
+  function blocksToHtml(lines, indent, topLevel) {
     var out = [];
     var pad = indent;
     var i = 0;
@@ -340,6 +402,10 @@ button {
       var line = lines[i];
 
       if (isBlank(line)) { i++; continue; }
+
+      // A blank line between each top level block, so the output reads the
+      // way hand written HTML does. Nested blocks rely on indenting instead.
+      if (topLevel && out.length) { out.push(''); }
 
       // Fenced code block
       if (RE_FENCE.test(line)) {
@@ -380,7 +446,7 @@ button {
           i++;
         }
         out.push(pad + '<blockquote>');
-        out = out.concat(blocksToHtml(quoted, pad + '  '));
+        out = out.concat(blocksToHtml(quoted, step(pad, 1)));
         out.push(pad + '</blockquote>');
         continue;
       }
@@ -396,24 +462,24 @@ button {
         }
 
         out.push(pad + '<table>');
-        out.push(pad + '  <thead>');
-        out.push(pad + '    <tr>');
+        out.push(step(pad, 1) + '<thead>');
+        out.push(step(pad, 2) + '<tr>');
         headCells.forEach(function (cell) {
-          out.push(pad + '      <th scope="col">' + inline(cell) + '</th>');
+          out.push(step(pad, 3) + '<th scope="col">' + inline(cell) + '</th>');
         });
-        out.push(pad + '    </tr>');
-        out.push(pad + '  </thead>');
+        out.push(step(pad, 2) + '</tr>');
+        out.push(step(pad, 1) + '</thead>');
 
         if (bodyRows.length) {
-          out.push(pad + '  <tbody>');
+          out.push(step(pad, 1) + '<tbody>');
           bodyRows.forEach(function (row) {
-            out.push(pad + '    <tr>');
+            out.push(step(pad, 2) + '<tr>');
             row.forEach(function (cell) {
-              out.push(pad + '      <td>' + inline(cell) + '</td>');
+              out.push(step(pad, 3) + '<td>' + inline(cell) + '</td>');
             });
-            out.push(pad + '    </tr>');
+            out.push(step(pad, 2) + '</tr>');
           });
-          out.push(pad + '  </tbody>');
+          out.push(step(pad, 1) + '</tbody>');
         }
 
         out.push(pad + '</table>');
@@ -476,22 +542,22 @@ button {
         out.push(pad + '<' + tag + '>');
 
         items.forEach(function (itemLines) {
-          var inner = blocksToHtml(itemLines, pad + '    ');
+          var inner = blocksToHtml(itemLines, step(pad, 2));
           var leadIsParagraph = inner.length && /^\s*<p>[\s\S]*<\/p>$/.test(inner[0]);
           var restIsList = inner.length > 1 && /^\s*<[uo]l>$/.test(inner[1]);
 
           if (leadIsParagraph && inner.length === 1) {
             var text = inner[0].trim().replace(/^<p>/, '').replace(/<\/p>$/, '');
-            out.push(pad + '  <li>' + text + '</li>');
+            out.push(step(pad, 1) + '<li>' + text + '</li>');
           } else if (leadIsParagraph && restIsList) {
             var lead = inner[0].trim().replace(/^<p>/, '').replace(/<\/p>$/, '');
-            out.push(pad + '  <li>' + lead);
+            out.push(step(pad, 1) + '<li>' + lead);
             out = out.concat(inner.slice(1));
-            out.push(pad + '  </li>');
+            out.push(step(pad, 1) + '</li>');
           } else {
-            out.push(pad + '  <li>');
+            out.push(step(pad, 1) + '<li>');
             out = out.concat(inner);
-            out.push(pad + '  </li>');
+            out.push(step(pad, 1) + '</li>');
           }
         });
 
@@ -542,21 +608,22 @@ button {
 
   function convert(markdown, fallbackTitle) {
     var lines = markdown.replace(/\r\n?/g, '\n').replace(/\t/g, '    ').split('\n');
+    collectDefinitions(lines);
     var title = findTitle(lines) || fallbackTitle || 'Untitled document';
-    var body = blocksToHtml(lines, '    ');
+    var body = blocksToHtml(lines, UNIT + UNIT, true);
 
     return [
       '<!DOCTYPE html>',
       '<html lang="en">',
       '<head>',
-      '  <meta charset="utf-8">',
-      '  <meta name="viewport" content="width=device-width, initial-scale=1">',
-      '  <title>' + escapeHtml(title) + '</title>',
+      UNIT + '<meta charset="utf-8">',
+      UNIT + '<meta name="viewport" content="width=device-width, initial-scale=1">',
+      UNIT + '<title>' + escapeHtml(title) + '</title>',
       '</head>',
       '<body>',
-      '  <main>'
+      UNIT + '<main>'
     ].concat(body, [
-      '  </main>',
+      UNIT + '</main>',
       '</body>',
       '</html>',
       ''
@@ -572,6 +639,7 @@ button {
   var fileName = document.getElementById('file-name');
   var convertBtn = document.getElementById('convert');
   var copyBtn = document.getElementById('copy');
+  var resetBtn = document.getElementById('reset');
   var outputPanel = document.getElementById('output-panel');
   var output = document.getElementById('output');
   var error = document.getElementById('error');
@@ -644,6 +712,20 @@ button {
     copyBtn.textContent = 'Copy to clipboard';
     output.focus();
     output.setSelectionRange(0, 0);
+  });
+
+  resetBtn.addEventListener('click', function () {
+    clearError();
+    source.value = '';
+    fileInput.value = '';
+    fileName.textContent = '';
+    fileName.hidden = true;
+    uploadedName = '';
+    output.value = '';
+    outputPanel.hidden = true;
+    copyBtn.textContent = 'Copy to clipboard';
+    window.scrollTo(0, 0);
+    source.focus();
   });
 
   copyBtn.addEventListener('click', function () {

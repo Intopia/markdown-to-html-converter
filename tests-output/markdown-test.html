@@ -8,70 +8,120 @@
 <body>
   <main>
     <h1>Markdown test document</h1>
+
     <p>This is the opening paragraph. It sits directly under the H1, so it should come through as a plain paragraph inside <code>main</code>. This H1 is also the only H1 in the document, so its text should end up as the <code>title</code> in the <code>head</code>.</p>
+
     <p>This paragraph is hard wrapped across
     three separate lines in the source, which
     should still come through as one paragraph.</p>
+
     <h2>Heading level 2</h2>
+
     <h3>Heading level 3</h3>
+
     <h4>Heading level 4</h4>
+
     <h5>Heading level 5</h5>
+
     <h6>Heading level 6</h6>
+
     <h2>Inline formatting</h2>
+
     <p>Some <strong>bold text using asterisks</strong> and some <strong>bold text using underscores</strong>.</p>
+
     <p>Some <em>italic text using asterisks</em> and some <em>italic text using underscores</em>.</p>
+
     <p>Some <strong><em>bold and italic together</em></strong> in one run.</p>
+
     <p>Some <code>inline code</code> in the middle of a sentence.</p>
+
     <p>Inline code containing markup, like <code>&lt;div class="example"&gt;</code>, and inline code containing an ampersand, like <code>a &amp;&amp; b</code>.</p>
+
     <p>A sentence that mixes <strong>bold with <code>code</code> inside it</strong> and <em>italic with a <a href="https://intopia.digital">link</a> inside it</em>.</p>
+
     <h2>Inline formatting edge cases</h2>
+
     <p>A variable called snake_case_word should not turn into emphasis.</p>
+
     <p>The sum 2*3*4 should not turn into emphasis either.</p>
-    <p>A plain ampersand & on its own, and a less than sign < on its own.</p>
+
+    <p>A plain ampersand &amp; on its own, and a less than sign &lt; on its own.</p>
+
     <p>An asterisk that stands alone * like this.</p>
+
     <h2>Links</h2>
+
     <p>A <a href="https://intopia.digital">simple link</a>.</p>
+
     <p>A <a href="https://intopia.digital" title="Intopia home page">link with a title attribute</a>.</p>
+
     <p>A <a href="../about/index.html">relative link</a> to another page.</p>
+
     <p>A <a href="mailto:hello@example.com">mailto link</a>.</p>
+
     <p>A <a href="https://intopia.digital">link with <strong>bold</strong> in the text</a>.</p>
+
+    <p>An autolink: <a href="https://intopia.digital">https://intopia.digital</a></p>
+
+    <p>An email autolink: <a href="mailto:hello@example.com">hello@example.com</a></p>
+
     <h2>Images</h2>
+
     <p>An image on its own line:</p>
+
     <p><img src="red-square.png" alt="A red square"></p>
+
     <p>An image with a title attribute:</p>
+
     <p><img src="blue-square.png" alt="A blue square" title="Blue square"></p>
+
     <p>An image with an empty alt attribute, for decorative use:</p>
+
     <p><img src="divider.png" alt=""></p>
+
     <p>An image wrapped in a link:</p>
+
     <p><a href="https://intopia.digital"><img src="green-square.png" alt="A green square"></a></p>
+
     <h2>Unordered lists</h2>
+
     <ul>
       <li>First item</li>
       <li>Second item</li>
       <li>Third item</li>
     </ul>
+
     <p>A list using asterisks:</p>
+
     <ul>
       <li>First item</li>
       <li>Second item</li>
     </ul>
+
     <p>A list using plus signs:</p>
+
     <ul>
       <li>First item</li>
       <li>Second item</li>
     </ul>
+
     <h2>Ordered lists</h2>
+
     <ol>
       <li>First item</li>
       <li>Second item</li>
       <li>Third item</li>
     </ol>
+
     <p>A list using the closing bracket style:</p>
+
     <ol>
       <li>First item</li>
       <li>Second item</li>
     </ol>
+
     <h2>Nested lists</h2>
+
     <ul>
       <li>Top level item one</li>
       <li>Top level item two
@@ -86,7 +136,9 @@
       </li>
       <li>Top level item three</li>
     </ul>
+
     <p>Numbered list with numbered children:</p>
+
     <ol>
       <li>First item</li>
       <li>Second item
@@ -97,7 +149,9 @@
       </li>
       <li>Third item</li>
     </ol>
+
     <p>Mixed nesting:</p>
+
     <ol>
       <li>Numbered parent
         <ul>
@@ -107,7 +161,9 @@
       </li>
       <li>Second numbered parent</li>
     </ol>
+
     <h2>Lists with more than one paragraph</h2>
+
     <ul>
       <li>
         <p>This item has a first paragraph.</p>
@@ -115,26 +171,34 @@
       </li>
       <li>This item only has one paragraph.</li>
     </ul>
+
     <h2>An unordered list immediately followed by an ordered list</h2>
+
     <ul>
       <li>Bullet one</li>
       <li>Bullet two</li>
     </ul>
+
     <ol>
       <li>Number one</li>
       <li>Number two</li>
     </ol>
+
     <h2>Blockquotes</h2>
+
     <blockquote>
       <p>A single line blockquote.</p>
     </blockquote>
+
     <blockquote>
       <p>A blockquote that runs
       across two lines in the source.</p>
     </blockquote>
+
     <blockquote>
       <p>A blockquote with a <strong>bold</strong> word and a <a href="https://intopia.digital">link</a>.</p>
     </blockquote>
+
     <blockquote>
       <p>A blockquote containing a list:</p>
       <ul>
@@ -142,21 +206,33 @@
         <li>Second item</li>
       </ul>
     </blockquote>
+
     <h2>Code blocks</h2>
+
     <p>A fenced code block with no language:</p>
+
     <pre><code>function plain() {
   return true;
 }</code></pre>
+
     <p>A fenced code block with a language:</p>
+
     <pre><code>function greet(name) {
   return "Hello, " + name;
 }</code></pre>
+
     <p>A fenced code block containing HTML, which should be escaped rather than passed through:</p>
+
     <pre><code>&lt;p class="example"&gt;Text &amp;amp; more text&lt;/p&gt;</code></pre>
+
     <p>A fenced code block using tildes:</p>
+
     <pre><code>This block uses tilde fences.</code></pre>
+
     <h2>Tables</h2>
+
     <p>A basic table:</p>
+
     <table>
       <thead>
         <tr>
@@ -178,7 +254,9 @@
         </tr>
       </tbody>
     </table>
+
     <p>A table with alignment markers:</p>
+
     <table>
       <thead>
         <tr>
@@ -200,7 +278,9 @@
         </tr>
       </tbody>
     </table>
+
     <p>A table with formatting inside cells:</p>
+
     <table>
       <thead>
         <tr>
@@ -223,44 +303,69 @@
         </tr>
       </tbody>
     </table>
+
     <h2>Horizontal rules</h2>
+
     <p>Three hyphens:</p>
+
     <hr>
+
     <p>Three asterisks:</p>
+
     <hr>
+
     <p>Three underscores:</p>
+
     <hr>
+
     <h2>Raw HTML</h2>
+
     <p>A raw HTML block, which should pass through untouched:</p>
+
     <div class="callout">
     <p>This markup was written directly in the markdown source.</p>
     </div>
+
     <p>A paragraph with <strong>inline HTML</strong> and an <abbr title="Accessible Rich Internet Applications">ARIA</abbr> abbreviation in it.</p>
+
     <p>A details element:</p>
+
     <details>
     <summary>Show more</summary>
     <p>Hidden content.</p>
     </details>
+
     <h2>Syntax this converter does not handle</h2>
+
     <p>These are here so you can see exactly what happens to them, not because they are expected to work.</p>
+
     <p>Setext style heading
     ====================</p>
+
     <p>Another setext heading</p>
+
     <hr>
-    <p>A [reference style link][intopia] and its definition at the bottom of the document.</p>
-    <p>An autolink: <https://intopia.digital></p>
+
+    <p>A <a href="https://intopia.digital">reference style link</a> and its definition at the bottom of the document.</p>
+
     <p>Strikethrough: ~~this text is struck through~~.</p>
+
     <p>A task list:</p>
+
     <ul>
       <li>[ ] An unchecked task</li>
       <li>[x] A checked task</li>
     </ul>
+
     <p>A footnote reference[^1].</p>
+
     <p>Term
     : A definition list definition.</p>
+
     <p>[^1]: The footnote text.</p>
-    <p>[intopia]: https://intopia.digital</p>
+
     <h2>Last section</h2>
+
     <p>A final paragraph so the document does not end on a list or a table.</p>
   </main>
 </body>

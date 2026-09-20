@@ -36,6 +36,14 @@ Raw HTML written directly in the markdown source is passed through untouched, so
 
 These are markdown extensions rather than part of the core language. Anything on this list is left alone and comes through as visible text, rather than being turned into broken markup.
 
+## How the output is formatted
+
+The generated HTML is indented with tabs, and there is a blank line between each top level block.
+
+Tabs are deliberate, so please don't convert them to spaces. A tab is the only indent character the reader controls: anyone can set tab width in their editor to suit how they read code, whether that means a wider indent to track nesting or a narrower one to avoid horizontal scrolling at high magnification. Spaces are a fixed number of columns for everyone, and the reader gets no say. It is the same principle as not hardcoding a font size.
+
+One exception. The contents of fenced code blocks are passed through exactly as written, because whitespace inside `pre` is significant and rewriting it would change what the page displays. If a code sample in your markdown is indented with spaces, it stays indented with spaces. Keep that in mind if you ever run a find and replace across the output.
+
 ## Repo structure
 
 ```
