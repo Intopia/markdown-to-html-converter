@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Markdown to HTML converter - Intopia</title>
+<link rel="shortcut icon" href="https://intopia.digital/wp-content/uploads/2017/06/cropped-Intopia_FINAL_icon-32x32.png" sizes="32x32">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root {
+  --ink: #16233d;
+  --ink-soft: #4a5875;
+  --paper: #efefef;
+  --panel: #ffffff;
+  --line: #d9d2be;
+  --border-strong: #dddddd;
+  --red: #a5322a;
+  --red-bg: #fbeae7;
+  --green: #29614a;
+  --green-bg: #e9f2ec;
+  --amber: #93641a;
+  --amber-bg: #faf1dc;
+  --neutral: #5b6472;
+  --neutral-bg: #f4f3ef;
+  --info: #29506b;
+  --info-bg: #e6eef3;
+  --focus: #1b4fbf;
+  --brand: #c03c0c;
+  --font-brand: 'Source Sans Pro', 'Helvetica Neue', Helvetica, Arial, Frutiger, 'Frutiger Linotype', Univers, Calibri, 'Gill Sans', 'Gill Sans MT', 'Myriad Pro', Myriad, 'DejaVu Sans Condensed', 'Liberation Sans', 'Nimbus Sans L', Tahoma, Geneva, sans-serif;
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'IBM Plex Sans', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+  --radius: 4px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 32px 20px 64px;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.wrap { max-width: 900px; margin: 0 auto; }
+
+.brand { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
+.intopia-logo { width: 180px; height: auto; }
+
+.brand-text h1 {
+  font-family: var(--font-brand);
+  color: var(--brand);
+  font-size: 2.4rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.privacy {
+  margin: 12px 0 32px;
+  color: var(--ink-soft);
+  max-width: 62ch;
+}
+
+h2 {
+  font-family: var(--font-display);
+  color: var(--ink);
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+
+.panel {
+  background: var(--panel);
+  border: 2px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.field { margin-bottom: 24px; }
+.field:last-child { margin-bottom: 0; }
+
+label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.hint {
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  margin: 0 0 8px;
+}
+
+textarea {
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--ink);
+  background: var(--panel);
+  border: 2px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 12px;
+  resize: vertical;
+}
+
+input[type="file"] {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  padding: 8px;
+  background: var(--panel);
+  border: 2px solid var(--border-strong);
+  border-radius: var(--radius);
+  max-width: 100%;
+}
+
+button {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 1.1rem;
+  cursor: pointer;
+  border-radius: var(--radius);
+  padding: 12px 22px;
+}
+
+.btn-primary {
+  background: var(--brand);
+  color: #ffffff;
+  border: 2px solid var(--brand);
+}
+
+.btn-primary:hover { background: #a63409; border-color: #a63409; }
+
+:focus { outline: 3px solid var(--focus); outline-offset: 2px; }
+:focus:not(:focus-visible) { outline: none; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+.error {
+  background: var(--red-bg);
+  border: 2px solid var(--red);
+  border-radius: var(--radius);
+  color: var(--red);
+  font-weight: 600;
+  padding: 12px 16px;
+  margin-bottom: 24px;
+}
+
+.file-name {
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  margin: 8px 0 0;
+}
+
+#output { min-height: 320px; }
+
+.copy-row { margin-top: 16px; }
+
+[hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="brand">
+    <img src="https://intopia.digital/wp-content/themes/intopia-refresh/assets/images/intopia.png" alt="Intopia logo" class="intopia-logo">
+    <div class="brand-text">
+      <h1>Markdown to HTML converter</h1>
+    </div>
+  </header>
+
+  <p class="privacy">Nothing you paste or upload here is sent anywhere. This tool runs entirely in your browser.</p>
+
+  <div class="error" id="error" tabindex="-1" hidden></div>
+
+  <div class="panel">
+    <div class="field">
+      <label for="source">Option 1: Paste your markdown</label>
+      <textarea id="source" rows="14" spellcheck="false"></textarea>
+    </div>
+
+    <div class="field">
+      <label for="file">Option 2: Upload a markdown file</label>
+      <p class="hint" id="file-hint">Accepts .md and .markdown files. The contents will be added to the text box above.</p>
+      <input type="file" id="file" accept=".md,.markdown" aria-describedby="file-hint">
+      <p class="file-name" id="file-name" hidden></p>
+    </div>
+
+    <button type="button" class="btn-primary" id="convert">Convert to HTML</button>
+  </div>
+
+  <div class="panel" id="output-panel" hidden>
+    <h2 id="output-heading">HTML output</h2>
+    <textarea id="output" rows="20" readonly spellcheck="false" aria-labelledby="output-heading"></textarea>
+    <div class="copy-row">
+      <button type="button" class="btn-primary" id="copy">Copy to clipboard</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ---------------------------------------------------------------
+     Inline conversion
+     --------------------------------------------------------------- */
+
+  function escapeHtml(text) {
+    return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  // A & is only escaped if it is not already the start of a character
+  // reference, so hand-written entities in the source survive intact.
+  var RE_ENTITY = /&(?!(?:[a-zA-Z][a-zA-Z0-9]{1,31}|#\d{1,7}|#[xX][0-9a-fA-F]{1,6});)/g;
+
+  // A < only counts as markup if a tag name or a comment follows it.
+  // Anything else is a literal less than sign and has to be escaped.
+  var RE_TAG_START = /^<(?:\/?[a-zA-Z][a-zA-Z0-9-]*(?:[\s>\/]|$)|!--)/;
+
+  function escapeAmp(text) {
+    return text.replace(RE_ENTITY, '&amp;');
+  }
+
+  function escapeStray(text) {
+    return escapeAmp(text).replace(/</g, function (match, offset, whole) {
+      return RE_TAG_START.test(whole.slice(offset)) ? '<' : '&lt;';
+    });
+  }
+
+  function escapeAttr(text) {
+    return escapeAmp(text).replace(/"/g, '&quot;').replace(/</g, '&lt;');
+  }
+
+  function inline(text) {
+    var codes = [];
+
+    function stash(html) {
+      codes.push(html);
+      return '\u0000' + (codes.length - 1) + '\u0000';
+    }
+
+    // Code spans first, so their contents are left alone by everything below.
+    var out = text.replace(/`([^`]+)`/g, function (match, code) {
+      return stash('<code>' + escapeHtml(code) + '</code>');
+    });
+
+    // Autolinks, before the stray character pass turns their < into &lt;
+    out = out.replace(/<((?:https?|ftp):\/\/[^\s<>]+|mailto:[^\s<>]+)>/g, function (m, url) {
+      return stash('<a href="' + escapeAttr(url) + '">' +
+        escapeAmp(url.replace(/^mailto:/i, '')) + '</a>');
+    });
+
+    out = out.replace(/<([^\s<>@]+@[^\s<>@.]+(?:\.[^\s<>@.]+)+)>/g, function (m, address) {
+      return stash('<a href="mailto:' + escapeAttr(address) + '">' + escapeAmp(address) + '</a>');
+    });
+
+    // Now escape any < and & that are not markup. Everything generated below
+    // this line is our own markup, so it has to happen before, not after.
+    out = escapeStray(out);
+
+    // Images before links, since the syntax only differs by the leading !
+    out = out.replace(/!\[([^\]]*)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)/g, function (m, alt, src, title) {
+      return '<img src="' + escapeAttr(src) + '" alt="' + escapeAttr(alt) + '"' +
+        (title ? ' title="' + escapeAttr(title) + '"' : '') + '>';
+    });
+
+    out = out.replace(/\[([^\]]*)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)/g, function (m, label, href, title) {
+      return '<a href="' + escapeAttr(href) + '"' +
+        (title ? ' title="' + escapeAttr(title) + '"' : '') + '>' + label + '</a>';
+    });
+
+    out = out.replace(/\*\*\*(\S(?:[\s\S]*?\S)?)\*\*\*/g, '<strong><em>$1</em></strong>');
+    out = out.replace(/\*\*(\S(?:[\s\S]*?\S)?)\*\*/g, '<strong>$1</strong>');
+    out = out.replace(/(^|[^\w])__(\S(?:[\s\S]*?\S)?)__(?!\w)/g, '$1<strong>$2</strong>');
+    out = out.replace(/(^|[^*\w])\*(\S(?:[^*]*?\S)?)\*(?!\*)/g, '$1<em>$2</em>');
+    out = out.replace(/(^|[^\w_])_(\S(?:[^_]*?\S)?)_(?!\w)/g, '$1<em>$2</em>');
+
+    return out.replace(/\u0000(\d+)\u0000/g, function (m, index) {
+      return codes[Number(index)];
+    });
+  }
+
+  /* ---------------------------------------------------------------
+     Block level tests
+     --------------------------------------------------------------- */
+
+  var RE_FENCE = /^ {0,3}(```|~~~)/;
+  var RE_HEADING = /^ {0,3}(#{1,6})\s+(.*?)\s*#*\s*$/;
+  var RE_RULE = /^ {0,3}([-*_])\s*(?:\1\s*){2,}$/;
+  var RE_QUOTE = /^ {0,3}>/;
+  var RE_ITEM = /^(\s*)([-*+]|\d+[.)])\s+(.*)$/;
+  var RE_HTML = /^ {0,3}<(?:\/?[a-zA-Z][a-zA-Z0-9-]*(?:[\s>\/]|$)|!--|!DOCTYPE)/i;
+
+  function isBlank(line) {
+    return !line.trim();
+  }
+
+  function isTableSeparator(line) {
+    if (!line || line.indexOf('-') === -1) { return false; }
+    return /^\s*\|?(\s*:?-+:?\s*\|)+\s*:?-*:?\s*\|?\s*$/.test(line) ||
+           /^\s*\|\s*:?-+:?\s*\|?\s*$/.test(line);
+  }
+
+  function startsNewBlock(line, nextLine) {
+    if (isBlank(line)) { return true; }
+    if (RE_FENCE.test(line)) { return true; }
+    if (RE_HEADING.test(line)) { return true; }
+    if (RE_RULE.test(line)) { return true; }
+    if (RE_QUOTE.test(line)) { return true; }
+    if (RE_ITEM.test(line)) { return true; }
+    if (RE_HTML.test(line)) { return true; }
+    if (line.indexOf('|') !== -1 && isTableSeparator(nextLine)) { return true; }
+    return false;
+  }
+
+  function splitRow(line) {
+    var row = line.trim();
+    if (row.charAt(0) === '|') { row = row.slice(1); }
+    if (row.charAt(row.length - 1) === '|') { row = row.slice(0, -1); }
+    return row.split('|').map(function (cell) { return cell.trim(); });
+  }
+
+  /* ---------------------------------------------------------------
+     Blocks to HTML. Returns an array of output lines, each already
+     prefixed with the supplied indent.
+     --------------------------------------------------------------- */
+
+  function blocksToHtml(lines, indent) {
+    var out = [];
+    var pad = indent;
+    var i = 0;
+
+    while (i < lines.length) {
+      var line = lines[i];
+
+      if (isBlank(line)) { i++; continue; }
+
+      // Fenced code block
+      if (RE_FENCE.test(line)) {
+        var fence = line.trim().slice(0, 3);
+        var code = [];
+        i++;
+        while (i < lines.length && lines[i].trim().indexOf(fence) !== 0) {
+          code.push(lines[i]);
+          i++;
+        }
+        i++; // closing fence
+        out.push(pad + '<pre><code>' + escapeHtml(code.join('\n')) + '</code></pre>');
+        continue;
+      }
+
+      // Horizontal rule
+      if (RE_RULE.test(line)) {
+        out.push(pad + '<hr>');
+        i++;
+        continue;
+      }
+
+      // Heading
+      var heading = line.match(RE_HEADING);
+      if (heading) {
+        var level = heading[1].length;
+        out.push(pad + '<h' + level + '>' + inline(heading[2]) + '</h' + level + '>');
+        i++;
+        continue;
+      }
+
+      // Blockquote
+      if (RE_QUOTE.test(line)) {
+        var quoted = [];
+        while (i < lines.length && !isBlank(lines[i]) &&
+               (RE_QUOTE.test(lines[i]) || quoted.length)) {
+          quoted.push(lines[i].replace(/^ {0,3}>\s?/, ''));
+          i++;
+        }
+        out.push(pad + '<blockquote>');
+        out = out.concat(blocksToHtml(quoted, pad + '  '));
+        out.push(pad + '</blockquote>');
+        continue;
+      }
+
+      // Table
+      if (line.indexOf('|') !== -1 && isTableSeparator(lines[i + 1])) {
+        var headCells = splitRow(line);
+        i += 2;
+        var bodyRows = [];
+        while (i < lines.length && !isBlank(lines[i]) && lines[i].indexOf('|') !== -1) {
+          bodyRows.push(splitRow(lines[i]));
+          i++;
+        }
+
+        out.push(pad + '<table>');
+        out.push(pad + '  <thead>');
+        out.push(pad + '    <tr>');
+        headCells.forEach(function (cell) {
+          out.push(pad + '      <th scope="col">' + inline(cell) + '</th>');
+        });
+        out.push(pad + '    </tr>');
+        out.push(pad + '  </thead>');
+
+        if (bodyRows.length) {
+          out.push(pad + '  <tbody>');
+          bodyRows.forEach(function (row) {
+            out.push(pad + '    <tr>');
+            row.forEach(function (cell) {
+              out.push(pad + '      <td>' + inline(cell) + '</td>');
+            });
+            out.push(pad + '    </tr>');
+          });
+          out.push(pad + '  </tbody>');
+        }
+
+        out.push(pad + '</table>');
+        continue;
+      }
+
+      // List
+      if (RE_ITEM.test(line)) {
+        var first = line.match(RE_ITEM);
+        var baseIndent = first[1].length;
+        var ordered = /\d/.test(first[2]);
+        var items = [];
+        var current = null;
+
+        while (i < lines.length) {
+          var candidate = lines[i];
+
+          if (isBlank(candidate)) {
+            // A blank line only continues the list if a list line follows.
+            var lookahead = i + 1;
+            while (lookahead < lines.length && isBlank(lines[lookahead])) { lookahead++; }
+            if (lookahead >= lines.length) { break; }
+            var next = lines[lookahead];
+            var nextItem = next.match(RE_ITEM);
+            var indented = /^\s{2,}\S/.test(next);
+            if (!nextItem && !indented) { break; }
+            if (nextItem && nextItem[1].length < baseIndent) { break; }
+            if (nextItem && nextItem[1].length <= baseIndent &&
+                /\d/.test(nextItem[2]) !== ordered) { break; }
+            if (current) { current.push(''); }
+            i = lookahead;
+            continue;
+          }
+
+          var itemMatch = candidate.match(RE_ITEM);
+
+          if (itemMatch && itemMatch[1].length <= baseIndent) {
+            if (/\d/.test(itemMatch[2]) !== ordered) { break; }
+            current = [itemMatch[3]];
+            items.push(current);
+            i++;
+            continue;
+          }
+
+          if (!current) { break; }
+
+          if (itemMatch || /^\s{2,}\S/.test(candidate)) {
+            // Nested item or continuation line, dedent and keep it with the item.
+            current.push(candidate.replace(new RegExp('^\\s{1,' + (baseIndent + 2) + '}'), ''));
+            i++;
+            continue;
+          }
+
+          // Lazy continuation of the current item's paragraph.
+          current.push(candidate.trim());
+          i++;
+        }
+
+        var tag = ordered ? 'ol' : 'ul';
+        out.push(pad + '<' + tag + '>');
+
+        items.forEach(function (itemLines) {
+          var inner = blocksToHtml(itemLines, pad + '    ');
+          var leadIsParagraph = inner.length && /^\s*<p>[\s\S]*<\/p>$/.test(inner[0]);
+          var restIsList = inner.length > 1 && /^\s*<[uo]l>$/.test(inner[1]);
+
+          if (leadIsParagraph && inner.length === 1) {
+            var text = inner[0].trim().replace(/^<p>/, '').replace(/<\/p>$/, '');
+            out.push(pad + '  <li>' + text + '</li>');
+          } else if (leadIsParagraph && restIsList) {
+            var lead = inner[0].trim().replace(/^<p>/, '').replace(/<\/p>$/, '');
+            out.push(pad + '  <li>' + lead);
+            out = out.concat(inner.slice(1));
+            out.push(pad + '  </li>');
+          } else {
+            out.push(pad + '  <li>');
+            out = out.concat(inner);
+            out.push(pad + '  </li>');
+          }
+        });
+
+        out.push(pad + '</' + tag + '>');
+        continue;
+      }
+
+      // Raw HTML block, passed through untouched
+      if (RE_HTML.test(line)) {
+        while (i < lines.length && !isBlank(lines[i])) {
+          out.push(pad + lines[i].trim());
+          i++;
+        }
+        continue;
+      }
+
+      // Paragraph
+      var para = [line.trim()];
+      i++;
+      while (i < lines.length && !startsNewBlock(lines[i], lines[i + 1])) {
+        para.push(lines[i].trim());
+        i++;
+      }
+      out.push(pad + '<p>' + inline(para.join('\n' + pad)) + '</p>');
+    }
+
+    return out;
+  }
+
+  /* ---------------------------------------------------------------
+     Document title
+     --------------------------------------------------------------- */
+
+  function findTitle(lines) {
+    for (var i = 0; i < lines.length; i++) {
+      var heading = lines[i].match(RE_HEADING);
+      if (heading && heading[1].length === 1) {
+        return heading[2]
+          .replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1')
+          .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+          .replace(/[*_`]/g, '')
+          .replace(/<[^>]+>/g, '')
+          .trim();
+      }
+    }
+    return '';
+  }
+
+  function convert(markdown, fallbackTitle) {
+    var lines = markdown.replace(/\r\n?/g, '\n').replace(/\t/g, '    ').split('\n');
+    var title = findTitle(lines) || fallbackTitle || 'Untitled document';
+    var body = blocksToHtml(lines, '    ');
+
+    return [
+      '<!DOCTYPE html>',
+      '<html lang="en">',
+      '<head>',
+      '  <meta charset="utf-8">',
+      '  <meta name="viewport" content="width=device-width, initial-scale=1">',
+      '  <title>' + escapeHtml(title) + '</title>',
+      '</head>',
+      '<body>',
+      '  <main>'
+    ].concat(body, [
+      '  </main>',
+      '</body>',
+      '</html>',
+      ''
+    ]).join('\n');
+  }
+
+  /* ---------------------------------------------------------------
+     Page wiring
+     --------------------------------------------------------------- */
+
+  var source = document.getElementById('source');
+  var fileInput = document.getElementById('file');
+  var fileName = document.getElementById('file-name');
+  var convertBtn = document.getElementById('convert');
+  var copyBtn = document.getElementById('copy');
+  var outputPanel = document.getElementById('output-panel');
+  var output = document.getElementById('output');
+  var error = document.getElementById('error');
+  var uploadedName = '';
+
+  function showError(message) {
+    error.textContent = message;
+    error.hidden = false;
+    error.focus();
+  }
+
+  function clearError() {
+    error.hidden = true;
+    error.textContent = '';
+  }
+
+  fileInput.addEventListener('change', function () {
+    clearError();
+    var file = fileInput.files && fileInput.files[0];
+    if (!file) { return; }
+
+    if (!/\.(md|markdown)$/i.test(file.name)) {
+      fileInput.value = '';
+      fileName.hidden = true;
+      uploadedName = '';
+      showError('That file is not a markdown file. Choose a file ending in .md or .markdown.');
+      return;
+    }
+
+    var reader = new FileReader();
+
+    reader.onload = function () {
+      var text = String(reader.result || '');
+      if (!text.trim()) {
+        fileInput.value = '';
+        fileName.hidden = true;
+        uploadedName = '';
+        showError('That file is empty. Choose a file with markdown in it, or paste your markdown instead.');
+        return;
+      }
+      source.value = text;
+      uploadedName = file.name.replace(/\.(md|markdown)$/i, '');
+      fileName.textContent = 'Loaded: ' + file.name;
+      fileName.hidden = false;
+    };
+
+    reader.onerror = function () {
+      showError('That file could not be read. Try again, or paste your markdown instead.');
+    };
+
+    reader.readAsText(file);
+  });
+
+  source.addEventListener('input', function () {
+    if (!source.value.trim()) {
+      uploadedName = '';
+    }
+  });
+
+  convertBtn.addEventListener('click', function () {
+    clearError();
+
+    if (!source.value.trim()) {
+      showError('There is no markdown to convert. Paste some markdown or upload a file first.');
+      return;
+    }
+
+    output.value = convert(source.value, uploadedName);
+    outputPanel.hidden = false;
+    copyBtn.textContent = 'Copy to clipboard';
+    output.focus();
+    output.setSelectionRange(0, 0);
+  });
+
+  copyBtn.addEventListener('click', function () {
+    var done = function () {
+      copyBtn.textContent = 'Copied to clipboard';
+      window.setTimeout(function () {
+        copyBtn.textContent = 'Copy to clipboard';
+      }, 2500);
+    };
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(output.value).then(done, function () {
+        output.select();
+        document.execCommand('copy');
+        done();
+      });
+    } else {
+      output.select();
+      document.execCommand('copy');
+      done();
+    }
+  });
+})();
+</script>
+</body>
+</html>

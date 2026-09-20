@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Testing :focus vs :focus-visible</title>
+</head>
+<body>
+  <main>
+    <h1>Testing <code>:focus</code> vs <code>:focus-visible</code></h1>
+    <p>Browsers use their own rules to decide when to show a visible focus indicator. For example, tabbing to a button will usually show a focus ring, while clicking the same button usually will not.</p>
+    <p>The <code>:focus-visible</code> pseudo-class is based on this browser behaviour. However, the rules are more nuanced than the common explanation of "buttons don't show a ring, text fields do".</p>
+    <p>These tests set out to find what actually happens, control by control, rather than relying on that shorthand. Each form control was tested three ways:</p>
+    <ol>
+      <li>With no author CSS, to see what the browser does on its own.</li>
+      <li>With a <code>:focus-visible</code> rule, to see whether an author's rule applies in the same places as the browser's own indicator.</li>
+      <li>With a <code>:focus</code> rule, to see where it differs from the first two.</li>
+    </ol>
+    <p>Each control was checked twice per variation: once by tabbing to it, and once by clicking it. The overall results are below.</p>
+    <hr>
+    <h2>Test setup</h2>
+    <h3>Test pages</h3>
+    <p>Test page 1: Form controls - browser defaults
+    https://intopia.github.io/exercise/form-controls-focus.html
+    Browser defaults, with no author CSS.</p>
+    <p>Test page 2: Form controls - using <code>:focus-visible</code>
+    https://intopia.github.io/exercise/form-controls-visible.html
+    <code>:focus-visible { outline: 3px solid red; outline-offset: 2px; }</code></p>
+    <p>Test page 3: Form controls - using <code>:focus</code>
+    https://intopia.github.io/exercise/form-controls-raw.html
+    <code>:focus { outline: 3px solid purple; outline-offset: 2px; }</code></p>
+    <h3>Form controls tested on each page</h3>
+    <ul>
+      <li><code>&lt;button&gt;</code></li>
+      <li><code>&lt;textarea&gt;</code></li>
+      <li><code>&lt;select&gt;</code></li>
+      <li><code>&lt;input type="button"&gt;</code></li>
+      <li><code>&lt;input type="checkbox"&gt;</code></li>
+      <li><code>&lt;input type="color"&gt;</code></li>
+      <li><code>&lt;input type="date"&gt;</code></li>
+      <li><code>&lt;input type="datetime-local"&gt;</code></li>
+      <li><code>&lt;input type="email"&gt;</code></li>
+      <li><code>&lt;input type="file"&gt;</code></li>
+      <li><code>&lt;input type="image"&gt;</code></li>
+      <li><code>&lt;input type="month"&gt;</code></li>
+      <li><code>&lt;input type="number"&gt;</code></li>
+      <li><code>&lt;input type="password"&gt;</code></li>
+      <li><code>&lt;input type="radio"&gt;</code></li>
+      <li><code>&lt;input type="range"&gt;</code></li>
+      <li><code>&lt;input type="reset"&gt;</code></li>
+      <li><code>&lt;input type="search"&gt;</code></li>
+      <li><code>&lt;input type="submit"&gt;</code></li>
+      <li><code>&lt;input type="tel"&gt;</code></li>
+      <li><code>&lt;input type="text"&gt;</code></li>
+      <li><code>&lt;input type="time"&gt;</code></li>
+      <li><code>&lt;input type="url"&gt;</code></li>
+      <li><code>&lt;input type="week"&gt;</code></li>
+    </ul>
+    <h3>Browsers and operating systems</h3>
+    <p>macOS 26.7:</p>
+    <ul>
+      <li>Chrome 153.0</li>
+      <li>Firefox 156.0</li>
+      <li>Safari 27.0</li>
+    </ul>
+    <p>Windows 11, version 25H2:</p>
+    <ul>
+      <li>Chrome 153.0</li>
+      <li>Firefox 156.0</li>
+    </ul>
+    <p>Safari was tested with "Press Tab to highlight each item on a webpage" turned on, since it is off by default and, without it, Tab skips many form controls.</p>
+    <hr>
+    <h2>Test page 1: Form controls - browser defaults</h2>
+    <h3>Tabbing:</h3>
+    <p>Every control shows a focus ring, with three exceptions, all in Safari on macOS:</p>
+    <ul>
+      <li><code>&lt;input type="range"&gt;</code> shows no ring at all.</li>
+      <li><code>&lt;input type="color"&gt;</code> can't be reached by Tab.</li>
+      <li>Date-related controls move focus through their individual segments rather than the whole control.</li>
+    </ul>
+    <p>The ring's colour also varies by platform. Chrome on Windows draws a dark ring rather than the blue one used on macOS.</p>
+    <h3>Clicking:</h3>
+    <p>Text fields and date-related controls show a ring. The following controls do not:</p>
+    <ul>
+      <li>Buttons: <code>&lt;button&gt;</code>, <code>&lt;input type="button"&gt;</code>, <code>&lt;input type="reset"&gt;</code>, <code>&lt;input type="submit"&gt;</code>, <code>&lt;input type="image"&gt;</code></li>
+      <li>Toggles: <code>&lt;input type="checkbox"&gt;</code>, <code>&lt;input type="radio"&gt;</code></li>
+      <li>Others: <code>&lt;input type="color"&gt;</code>, <code>&lt;input type="file"&gt;</code>, <code>&lt;input type="range"&gt;</code></li>
+    </ul>
+    <p><code>&lt;select&gt;</code> varies by browser and is covered separately.</p>
+    <hr>
+    <h2>Test page 2: Form controls - using <code>:focus-visible</code></h2>
+    <h3>Tabbing:</h3>
+    <ul>
+      <li>Every control that can be reached by Tab shows the red outline in every browser.</li>
+      <li>This includes Safari's <code>&lt;input type="range"&gt;</code>, which gets an outline even though Safari does not draw its own.</li>
+      <li>Safari's <code>&lt;input type="color"&gt;</code> still can't be reached by Tab, so the rule never applies.</li>
+    </ul>
+    <h3>Clicking:</h3>
+    <ul>
+      <li>The results match the browser defaults almost exactly.</li>
+      <li>The same controls show an outline, and the same controls do not.</li>
+    </ul>
+    <p>The main finding is that a <code>:focus-visible</code> rule generally matches the behaviour browsers already use for their own focus styles.</p>
+    <p>There is one exception: <code>&lt;select&gt;</code> in Chrome on Windows. The browser shows no default ring when it is clicked, but the <code>:focus-visible</code> rule does apply. This is the only difference in the click results, out of 120 comparisons.</p>
+    <p>Together with Safari's <code>&lt;input type="range"&gt;</code> when tabbing, this shows that a browser's own focus ring and <code>:focus-visible</code> matching are separate decisions. They usually align, but not always.</p>
+    <hr>
+    <h2>Test page 3: Form controls - using <code>:focus</code></h2>
+    <h3>Tabbing:</h3>
+    <p>Every control that can be reached by Tab shows the purple outline in every browser, including Safari's <code>&lt;input type="range"&gt;</code>.</p>
+    <h3>Clicking:</h3>
+    <p>In Chrome and Firefox, on both platforms, every control except <code>&lt;input type="file"&gt;</code> shows an outline when clicked. This means those controls did receive focus in the earlier tests, but the browser chose not to show a focus indicator.</p>
+    <p>In Safari on macOS, buttons, checkboxes, radios, submit, reset and image controls show no outline at all. These controls do not receive focus when clicked, which is consistent with Safari's mouse-focus behaviour on macOS.</p>
+    <p><code>&lt;input type="file"&gt;</code> shows no outline when clicked in any browser tested. Opening the file picker affects focus, so the <code>:focus</code> outline is not visible during this interaction.</p>
+    <hr>
+    <h2>Key findings</h2>
+    <h3>Finding 1:</h3>
+    <p>Tabbing and clicking often produce different focus results, as expected.</p>
+    <h3>Finding 2:</h3>
+    <p>The controls that don't show a focus ring when clicked vary slightly between browsers, but generally include:</p>
+    <ul>
+      <li>Buttons: <code>&lt;button&gt;</code>, <code>&lt;input type="button"&gt;</code>, <code>&lt;input type="reset"&gt;</code>, <code>&lt;input type="submit"&gt;</code>, <code>&lt;input type="image"&gt;</code></li>
+      <li>Toggles: <code>&lt;input type="checkbox"&gt;</code>, <code>&lt;input type="radio"&gt;</code></li>
+      <li>Others: <code>&lt;input type="color"&gt;</code>, <code>&lt;input type="file"&gt;</code>, <code>&lt;input type="range"&gt;</code></li>
+    </ul>
+    <p><code>&lt;select&gt;</code> varies between browsers.</p>
+    <p>The results are almost identical whether you rely on browser defaults or use your own <code>:focus-visible</code> rule, with the one exception covered above.</p>
+    <h3>Finding 3:</h3>
+    <p>If you want focus styles to appear whenever a control receives focus, regardless of whether it was reached by Tab or click, use <code>:focus</code>.</p>
+    <p>In these tests, <code>:focus</code> showed an indicator in almost every case, with two notable exceptions:</p>
+    <ul>
+      <li><code>&lt;input type="file"&gt;</code>, where the indicator is not visible after the file dialog opens.</li>
+      <li>Safari on macOS, where clicking some controls, including buttons, checkboxes and radios, does not give them focus.</li>
+    </ul>
+    <h3>Finding 4:</h3>
+    <p>The missing focus ring matters most when clicking a control leaves it focused and ready for further keyboard interaction. Controls such as <code>&lt;input type="checkbox"&gt;</code>, <code>&lt;input type="radio"&gt;</code>, <code>&lt;input type="range"&gt;</code> and <code>&lt;select&gt;</code> can remain keyboard-operable after a click, even though there may be nothing on screen to show which control has focus.</p>
+    <h3>Finding 5:</h3>
+    <p><code>&lt;input type="file"&gt;</code> behaves differently from the other controls tested. Clicking it opens the system file dialog and moves focus away from the page. After the dialog closes, no visible focus indicator appears on the input.</p>
+    <p>This occurred in Chrome, Firefox and Safari, with browser defaults, <code>:focus-visible</code> and <code>:focus</code>, and whether a file was selected or the dialog was cancelled.</p>
+    <hr>
+    <h2>What this means in practice</h2>
+    <p>Test focus with the keyboard, not just the mouse. A missing focus ring after a click can be expected behaviour and can happen for different reasons.</p>
+    <p>When a ring doesn't appear, check whether the control actually has focus rather than assuming the focus style has failed.</p>
+  </main>
+</body>
+</html>
