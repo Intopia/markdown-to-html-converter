@@ -47,9 +47,9 @@ One exception. The contents of fenced code blocks are passed through exactly as 
 ## Repo structure
 
 ```
-index.html          the converter itself, self contained, no dependencies
-tests/              markdown files used to test the converter
-tests-output/       the HTML those test files produce
+index.html - the converter itself, self contained, no dependencies
+tests/ - markdown files used to test the converter
+tests-output/ - the HTML those test files produce
 README.md
 LICENSE
 ```
